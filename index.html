@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRizma Kampanya Bütçesi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            color: #333;
+            position: relative;
+        }
+        
+        .container {
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 50px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90" fill="rgba(255,255,255,0.05)"/></svg>') repeat;
+            animation: float 20s linear infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateX(-50px) translateY(-50px); }
+            100% { transform: translateX(50px) translateY(50px); }
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 20px 30px;
+            display: grid;
+            grid-template-columns: 2.2fr 0.8fr;
+            gap: 25px;
+            background: #f8f9fa;
+            height: calc(100vh - 200px);
+            overflow: hidden;
+        }
+        
+        .budget-table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .table-header {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 15px 25px;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .table-wrapper {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .budget-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8em;
+        }
+        
+        .budget-table thead {
+            background: linear-gradient(135deg, #45b7d1, #96ceb4);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .budget-table th {
+            padding: 10px 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .budget-table td {
+            padding: 8px 15px;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+        
+        .budget-table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(255,107,107,0.05), rgba(78,205,196,0.05));
+            transform: translateX(5px);
+        }
+        
+        .category-row {
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            font-weight: bold;
+            color: #2d3436;
+        }
+        
+        .category-row td {
+            padding: 10px 15px;
+            font-size: 0.95em;
+        }
+        
+        .subcategory-row {
+            background: #f8f9fa;
+        }
+        
+        .item-row td:first-child {
+            padding-left: 30px;
+            font-size: 0.85em;
+        }
+        
+        .price-cell {
+            text-align: right;
+            font-weight: bold;
+            color: #2d3436;
+        }
+        
+        .total-row {
+            background: linear-gradient(135deg, #fd79a8, #fdcb6e);
+            color: white;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .total-row td {
+            padding: 15px;
+        }
+        
+        .summary-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #fd79a8);
+        }
+        
+        .summary-card h3 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #2d3436;
+        }
+        
+        .cost-breakdown {
+            margin-bottom: 10px;
+        }
+        
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.85em;
+        }
+        
+        .cost-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-top: 8px;
+            padding-top: 10px;
+            border-top: 2px solid #ddd;
+        }
+        
+        .cost-label {
+            color: #636e72;
+        }
+        
+        .cost-value {
+            font-weight: bold;
+            color: #2d3436;
+        }
+        
+        .chart-placeholder {
+            height: 120px;
+            background: linear-gradient(135deg, #667eea20, #764ba220);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            color: #636e72;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pie-chart {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #ff6b6b 0deg 108deg,
+                #4ecdc4 108deg 180deg,
+                #45b7d1 180deg 252deg,
+                #96ceb4 252deg 288deg,
+                #ffeaa7 288deg 324deg,
+                #fd79a8 324deg 360deg
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .pie-chart::before {
+            content: '';
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+        }
+        
+        .pie-label {
+            position: absolute;
+            font-weight: bold;
+            color: #2d3436;
+            z-index: 2;
+            font-size: 0.8em;
+        }
+        
+        .footer-stats {
+            background: linear-gradient(135deg, #2d3436, #636e72);
+            color: white;
+            padding: 15px 30px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .stat-item h4 {
+            font-size: 1.5em;
+            margin-bottom: 3px;
+            color: #ffeaa7;
+        }
+        
+        .stat-item p {
+            font-size: 0.8em;
+            opacity: 0.9;
+        }
+        
+        .currency {
+            color: #27ae60;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>PRizma Kampanya Bütçesi</h1>
+            <p>23 Eylül - 20 Aralık 2025 • 12 Haftalık Detaylı Maliyet Analizi</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="budget-table-container">
+                <div class="table-header">
+                    Detaylı Bütçe Dağılımı
+                </div>
+                <div class="table-wrapper">
+                    <table class="budget-table">
+                    <thead>
+                        <tr>
+                            <th>Kategori / Kalem</th>
+                            <th>Miktar</th>
+                            <th>Birim Fiyat</th>
+                            <th>Toplam (₺)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="category-row">
+                            <td colspan="4">🎯 KAMPÜS AKTİVİTELERİ</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Kriz Masası Stand Kurulumu</td>
+                            <td>15 adet</td>
+                            <td class="price-cell">₺8,000</td>
+                            <td class="price-cell currency">₺120,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>QRiz Maskot Kostüm & Çalışan</td>
+                            <td>30 gün</td>
+                            <td class="price-cell">₺1,500</td>
+                            <td class="price-cell currency">₺45,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>QR Sticker Üretim & Dağıtım</td>
+                            <td>50,000 adet</td>
+                            <td class="price-cell">₺0.80</td>
+                            <td class="price-cell currency">₺40,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>PRizma Güvenli Bölgesi Kurulumu</td>
+                            <td>15 lokasyon</td>
+                            <td class="price-cell">₺3,500</td>
+                            <td class="price-cell currency">₺52,500</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Workshop Organizasyonu</td>
+                            <td>20 etkinlik</td>
+                            <td class="price-cell">₺2,500</td>
+                            <td class="price-cell currency">₺50,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>PRizma Bardak Üretimi</td>
+                            <td>100,000 adet</td>
+                            <td class="price-cell">₺1.20</td>
+                            <td class="price-cell currency">₺120,000</td>
+                        </tr>
+                        <tr class="subcategory-row">
+                            <td><strong>Kampüs Alt Toplam</strong></td>
+                            <td colspan="2"></td>
+                            <td class="price-cell currency"><strong>₺427,500</strong></td>
+                        </tr>
+                        
+                        <tr class="category-row">
+                            <td colspan="4">🏙️ OUTDOOR MEDYA</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Billboard Kiralama (3 ay)</td>
+                            <td>25 nokta</td>
+                            <td class="price-cell">₺15,000</td>
+                            <td class="price-cell currency">₺375,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Transit Reklamları</td>
+                            <td>100 adet</td>
+                            <td class="price-cell">₺800</td>
+                            <td class="price-cell currency">₺80,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Yaratıcı Tasarım & Prodüksiyon</td>
+                            <td>1 paket</td>
+                            <td class="price-cell">₺50,000</td>
+                            <td class="price-cell currency">₺50,000</td>
+                        </tr>
+                        <tr class="subcategory-row">
+                            <td><strong>Outdoor Alt Toplam</strong></td>
+                            <td colspan="2"></td>
+                            <td class="price-cell currency"><strong>₺505,000</strong></td>
+                        </tr>
+                        
+                        <tr class="category-row">
+                            <td colspan="4">📱 DİJİTAL & SOSYAL MEDYA</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Platform Geliştirme</td>
+                            <td>1 proje</td>
+                            <td class="price-cell">₺200,000</td>
+                            <td class="price-cell currency">₺200,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>İçerik Üretimi (12 hafta)</td>
+                            <td>300 post</td>
+                            <td class="price-cell">₺400</td>
+                            <td class="price-cell currency">₺120,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Canlı Yayın Prodüksiyonu</td>
+                            <td>24 yayın</td>
+                            <td class="price-cell">₺3,000</td>
+                            <td class="price-cell currency">₺72,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>İnfluencer İş Birlikleri</td>
+                            <td>10 kişi</td>
+                            <td class="price-cell">₺8,000</td>
+                            <td class="price-cell currency">₺80,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Instagram Reklam Bütçesi</td>
+                            <td>12 hafta</td>
+                            <td class="price-cell">₺5,000</td>
+                            <td class="price-cell currency">₺60,000</td>
+                        </tr>
+                        <tr class="subcategory-row">
+                            <td><strong>Dijital Alt Toplam</strong></td>
+                            <td colspan="2"></td>
+                            <td class="price-cell currency"><strong>₺532,000</strong></td>
+                        </tr>
+                        
+                        <tr class="category-row">
+                            <td colspan="4">👥 İNSAN KAYNAKLARI</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Proje Yöneticisi (3 ay)</td>
+                            <td>3 ay</td>
+                            <td class="price-cell">₺25,000</td>
+                            <td class="price-cell currency">₺75,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Kampüs Koordinatörleri</td>
+                            <td>45 kişi/gün</td>
+                            <td class="price-cell">₺800</td>
+                            <td class="price-cell currency">₺36,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>İçerik Editörleri</td>
+                            <td>12 hafta</td>
+                            <td class="price-cell">₺8,000</td>
+                            <td class="price-cell currency">₺96,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Teknik Destek Ekibi</td>
+                            <td>3 ay</td>
+                            <td class="price-cell">₺15,000</td>
+                            <td class="price-cell currency">₺45,000</td>
+                        </tr>
+                        <tr class="subcategory-row">
+                            <td><strong>İnsan Kaynakları Alt Toplam</strong></td>
+                            <td colspan="2"></td>
+                            <td class="price-cell currency"><strong>₺252,000</strong></td>
+                        </tr>
+                        
+                        <tr class="category-row">
+                            <td colspan="4">🎁 ÖDÜLLER & PROMOSYONLAR</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Kahve Kuponları</td>
+                            <td>5,000 adet</td>
+                            <td class="price-cell">₺15</td>
+                            <td class="price-cell currency">₺75,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Çekiliş Ödülleri</td>
+                            <td>50 adet</td>
+                            <td class="price-cell">₺500</td>
+                            <td class="price-cell currency">₺25,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>PRizma Hediye Paketleri</td>
+                            <td>1,000 adet</td>
+                            <td class="price-cell">₺35</td>
+                            <td class="price-cell currency">₺35,000</td>
+                        </tr>
+                        <tr class="subcategory-row">
+                            <td><strong>Ödüller Alt Toplam</strong></td>
+                            <td colspan="2"></td>
+                            <td class="price-cell currency"><strong>₺135,000</strong></td>
+                        </tr>
+                        
+                        <tr class="category-row">
+                            <td colspan="4">🔧 DİĞER GİDERLER</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Lojistik & Nakliye</td>
+                            <td>1 paket</td>
+                            <td class="price-cell">₺40,000</td>
+                            <td class="price-cell currency">₺40,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Sigorta & Yasal Gereklilikler</td>
+                            <td>1 paket</td>
+                            <td class="price-cell">₺25,000</td>
+                            <td class="price-cell currency">₺25,000</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td>Beklenmedik Giderler (%5)</td>
+                            <td>1 paket</td>
+                            <td class="price-cell">₺48,375</td>
+                            <td class="price-cell currency">₺48,375</td>
+                        </tr>
+                        <tr class="subcategory-row">
+                            <td><strong>Diğer Alt Toplam</strong></td>
+                            <td colspan="2"></td>
+                            <td class="price-cell currency"><strong>₺113,375</strong></td>
+                        </tr>
+                        
+                        <tr class="total-row">
+                            <td colspan="3"><strong>GENEL TOPLAM</strong></td>
+                            <td class="price-cell"><strong>₺1,964,875</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            
+            <div class="summary-panel">
+                <div class="summary-card">
+                    <h3>💰 Bütçe Özeti</h3>
+                    <div class="cost-breakdown">
+                        <div class="cost-item">
+                            <span class="cost-label">Kampüs Aktiviteleri</span>
+                            <span class="cost-value currency">₺427,500</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Outdoor Medya</span>
+                            <span class="cost-value currency">₺505,000</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Dijital & Sosyal Medya</span>
+                            <span class="cost-value currency">₺532,000</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">İnsan Kaynakları</span>
+                            <span class="cost-value currency">₺252,000</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Ödüller & Promosyonlar</span>
+                            <span class="cost-value currency">₺135,000</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Diğer Giderler</span>
+                            <span class="cost-value currency">₺113,375</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">TOPLAM BÜTÇe</span>
+                            <span class="cost-value currency">₺1,964,875</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <h3>📊 Bütçe Dağılımı</h3>
+                    <div class="chart-placeholder">
+                        <div class="pie-chart">
+                            <div class="pie-label">Görsel<br>Analiz</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <h3>🎯 ROI Hedefleri</h3>
+                    <div class="cost-breakdown">
+                        <div class="cost-item">
+                            <span class="cost-label">Kullanıcı Başı Maliyet</span>
+                            <span class="cost-value">₺196</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Takipçi Başı Maliyet</span>
+                            <span class="cost-value">₺245</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Etkinlik Başı Maliyet</span>
+                            <span class="cost-value">₺98,244</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Günlük Ortalama</span>
+                            <span class="cost-value currency">₺23,391</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-stats">
+            <div class="stat-item">
+                <h4>₺1.96M</h4>
+                <p>Toplam Bütçe</p>
+            </div>
+            <div class="stat-item">
+                <h4>84</h4>
+                <p>Kampanya Günü</p>
+            </div>
+            <div class="stat-item">
+                <h4>10.000+</h4>
+                <p>Hedef Kullanıcı</p>
+            </div>
+            <div class="stat-item">
+                <h4>20+</h4>
+                <p>Üniversite</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
